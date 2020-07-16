@@ -146,6 +146,63 @@ function analyze(n) {
             .map(({ votePercentage }) => votePercentage)
         )
       );
+      console.log(
+        "0.5 - 0.6",
+        utils.mean(
+          distances
+            .filter(
+              ({ distanceToMeanVoter }) =>
+                distanceToMeanVoter < 0.6 && distanceToMeanVoter > 0.5
+            )
+            .map(({ votePercentage }) => votePercentage)
+        )
+      );
+      console.log(
+        "0.6 - 0.7",
+        utils.mean(
+          distances
+            .filter(
+              ({ distanceToMeanVoter }) =>
+                distanceToMeanVoter < 0.7 && distanceToMeanVoter > 0.6
+            )
+            .map(({ votePercentage }) => votePercentage)
+        )
+      );
+      console.log(
+        "0.7 - 0.8",
+        utils.mean(
+          distances
+            .filter(
+              ({ distanceToMeanVoter }) =>
+                distanceToMeanVoter < 0.8 && distanceToMeanVoter > 0.7
+            )
+            .map(({ votePercentage }) => votePercentage)
+        )
+      );
+
+      console.log(
+        "0.8 - 0.9",
+        utils.mean(
+          distances
+            .filter(
+              ({ distanceToMeanVoter }) =>
+                distanceToMeanVoter < 0.9 && distanceToMeanVoter > 0.8
+            )
+            .map(({ votePercentage }) => votePercentage)
+        )
+      );
+
+      console.log(
+        "0.9 - 1.0",
+        utils.mean(
+          distances
+            .filter(
+              ({ distanceToMeanVoter }) =>
+                distanceToMeanVoter < 1.0 && distanceToMeanVoter > 0.9
+            )
+            .map(({ votePercentage }) => votePercentage)
+        )
+      );
     });
   endStream.write(endCsv);
   endStream.end();
