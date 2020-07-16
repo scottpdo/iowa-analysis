@@ -120,7 +120,7 @@ function setup() {
   }
   // connect voters
   voters.forEach((voter) => {
-    const n = 3;
+    const n = utils.sample([3, 3, 4, 5, 6]);
     let d = 0;
     let neighbors;
     do {
@@ -146,7 +146,7 @@ function run(i) {
   environment.tick({ randomizeOrder: true });
 
   const seedStr = utils.zfill(i.toString(), 4);
-  const dataPath = `./data/${seedStr}`;
+  const dataPath = `${__dirname}/data/${seedStr}`;
   const filePath =
     dataPath + "/" + utils.zfill(environment.time.toString(), 3) + ".csv";
   if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
@@ -179,11 +179,11 @@ function run(i) {
 }
 
 // make data directory if it does not exist
-if (!fs.existsSync("./data")) {
-  fs.mkdirSync("./data");
+if (!fs.existsSync(__dirname + "/data")) {
+  fs.mkdirSync(__dirname + "/data");
 } else {
-  fs.readdirSync("./data").forEach((sub) => {
-    rimraf.sync("./data/" + sub);
+  fs.readdirSync(__dirname + "/data").forEach((sub) => {
+    rimraf.sync(__dirname + "/data/" + sub);
   });
 }
 
