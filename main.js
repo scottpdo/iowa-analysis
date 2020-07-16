@@ -10,6 +10,7 @@ const {
   Vector,
 } = require("flocc");
 
+const START = parseInt(argv.start) || 0;
 const RUNS = parseInt(argv.runs) || 1;
 
 const colors = [
@@ -189,7 +190,7 @@ function run(i) {
   run(i);
 }
 
-for (let i = 0; i < RUNS; i++) {
+for (let i = START; i < START + RUNS; i++) {
   utils.seed(i);
   setup();
   run(i);
