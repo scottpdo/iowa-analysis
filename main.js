@@ -1,4 +1,5 @@
 const fs = require("fs");
+const rimraf = require("rimraf");
 const { argv } = require("yargs");
 const {
   Agent,
@@ -12,19 +13,9 @@ const {
 
 const START = parseInt(argv.start) || 0;
 const RUNS = parseInt(argv.runs) || 1;
-
-const colors = [
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "cyan",
-  "blue",
-  "purple",
-  "black",
-];
-const VOTERS = 500;
-const CANDIDATES = colors.length;
+const THRESHOLD = parseInt(argv.threshold) || 0.15;
+const VOTERS = parseInt(argv.voters) || 500;
+const CANDIDATES = parseInt(argv.candidates) || 8;
 
 const xy = () => {
   const x = utils.random(-1, 1, true);
@@ -69,7 +60,6 @@ function tickVoter(agent) {
 
   candidate.increment("votes");
   agent.set("candidate", candidate);
-  agent.set("color", candidate.get("color"));
 }
 
 function setup() {
@@ -82,7 +72,7 @@ function setup() {
     type: "csv",
   });
   table.columns = [
-    "color",
+    "i",
     "votes",
     "x",
     "y",
@@ -96,7 +86,6 @@ function setup() {
       candidate: null,
       x,
       y,
-      color: "gray",
       size: 2,
       type: "voter",
     });
@@ -119,7 +108,7 @@ function setup() {
     const candidate = new Agent({
       x,
       y,
-      color: colors[i],
+      i,
       size: 6,
       type: "candidate",
       votes: 0,
@@ -160,7 +149,6 @@ function run(i) {
   const dataPath = `./data/${seedStr}`;
   const filePath =
     dataPath + "/" + utils.zfill(environment.time.toString(), 3) + ".csv";
-  if (!fs.existsSync(`./data`)) fs.mkdirSync(`./data`);
   if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
   fs.writeFileSync(filePath, table.output());
 
@@ -169,7 +157,7 @@ function run(i) {
 
   const done = candidates
     .map((c) => c.get("votes"))
-    .every((v) => v === 0 || v / VOTERS > 0.15);
+    .every((v) => v === 0 || v / VOTERS > THRESHOLD);
   if (done) {
     console.log(`Run ${i} stabilized at time ${environment.time}`);
     return;
@@ -180,7 +168,7 @@ function run(i) {
 
   candidates.forEach((c) => {
     const { votes } = c.getData();
-    const valid = votes / voters.length >= 0.15;
+    const valid = votes / voters.length >= THRESHOLD;
     c.set("valid", valid);
     // reset votes
     c.set("lastVotes", votes);
@@ -188,6 +176,15 @@ function run(i) {
   });
 
   run(i);
+}
+
+// make data directory if it does not exist
+if (!fs.existsSync("./data")) {
+  fs.mkdirSync("./data");
+} else {
+  fs.readdirSync("./data").forEach((sub) => {
+    rimraf.sync("./data/" + sub);
+  });
 }
 
 for (let i = START; i < START + RUNS; i++) {
