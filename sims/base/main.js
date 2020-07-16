@@ -181,10 +181,6 @@ function run(i) {
 // make data directory if it does not exist
 if (!fs.existsSync(__dirname + "/data")) {
   fs.mkdirSync(__dirname + "/data");
-} else {
-  fs.readdirSync(__dirname + "/data").forEach((sub) => {
-    rimraf.sync(__dirname + "/data/" + sub);
-  });
 }
 
 for (let i = START; i < START + RUNS; i++) {

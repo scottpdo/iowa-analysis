@@ -1,38 +1,34 @@
 const { parse } = require("@fast-csv/parse");
 const { utils } = require("flocc");
+const { argv } = require("yargs");
 const fs = require("fs");
+const { exit } = require("process");
 
-const colors = [
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "cyan",
-  "blue",
-  "purple",
-  "black",
-];
+const path = argv.path;
+if (!path) {
+  console.warn(
+    "Please enter the path to the simulation, e.g. --path=sims/base"
+  );
+  exit();
+}
 
 const startingPercentages = {};
 const endingPercentages = {};
-colors.forEach((color) => {
-  startingPercentages[color] = [];
-  endingPercentages[color] = [];
-});
 
 const distances = [];
 
 function analyze(subdirName, finished) {
   const startCsv = fs.readFileSync(
-    `./data/${subdirName}/001.csv`,
+    `${__dirname}/${path}/data/${subdirName}/001.csv`,
     "utf-8"
   );
   const startStream = parse({
     headers: true,
   })
     .on("error", (error) => console.error(error))
-    .on("data", ({ color, votes, votePercentage }) => {
-      startingPercentages[color].push(+votePercentage);
+    .on("data", ({ i, votes, votePercentage }) => {
+      if (!startingPercentages[i]) startingPercentages[i] = [];
+      startingPercentages[i].push(+votePercentage);
     });
   startStream.write(startCsv);
   startStream.end();
@@ -41,7 +37,7 @@ function analyze(subdirName, finished) {
   let i = 2;
   while (
     fs.existsSync(
-      `./data/${subdirName}/${utils.zfill(
+      `${__dirname}/${path}/data/${subdirName}/${utils.zfill(
         i.toString(),
         3
       )}.csv`
@@ -51,7 +47,7 @@ function analyze(subdirName, finished) {
   }
   i--;
   endCsv = fs.readFileSync(
-    `./data/${subdirName}/${utils.zfill(
+    `${__dirname}/${path}/data/${subdirName}/${utils.zfill(
       i.toString(),
       3
     )}.csv`,
@@ -62,8 +58,9 @@ function analyze(subdirName, finished) {
     headers: true,
   })
     .on("error", (error) => console.error(error))
-    .on("data", ({ color, votes, votePercentage, distanceToMeanVoter }) => {
-      endingPercentages[color].push(+votePercentage);
+    .on("data", ({ i, votes, votePercentage, distanceToMeanVoter }) => {
+      if (!endingPercentages[i]) endingPercentages[i] = [];
+      endingPercentages[i].push(+votePercentage);
 
       distances.push({
         distanceToMeanVoter: +distanceToMeanVoter,
@@ -72,31 +69,39 @@ function analyze(subdirName, finished) {
     })
     .on("end", () => {
       if (!finished) return;
-      colors.forEach((color) => {
-        console.log(
-          color,
-          endingPercentages[color].filter((p) => p > 0).length
-        );
-      });
-      console.table([[0, 0.05], [0.05, 0.1], [0.1, 0.2], [0.2, 0.3], [0.3, 0.4], [0.5, 0.75], [0.75, 1]].map(([min, max]) => {
-        const percentages = distances.filter(({ distanceToMeanVoter }) => {
-          return distanceToMeanVoter > min && distanceToMeanVoter < max;
-        }).map(({ votePercentage }) => votePercentage)
+      console.table(
+        [
+          [0, 0.05],
+          [0.05, 0.1],
+          [0.1, 0.2],
+          [0.2, 0.3],
+          [0.3, 0.4],
+          [0.5, 0.6],
+          [0.6, 0.7],
+          [0.7, 0.8],
+          [0.8, 0.9],
+          [0.9, 1],
+        ].map(([min, max]) => {
+          const percentages = distances
+            .filter(({ distanceToMeanVoter }) => {
+              return distanceToMeanVoter > min && distanceToMeanVoter < max;
+            })
+            .map(({ votePercentage }) => votePercentage);
 
-        return { 
-          range: `${min} - ${max}`,
-          mean: utils.mean(percentages),
-          median: utils.median(percentages)
-        };
-      }));
+          return {
+            range: `${min} - ${max}`,
+            mean: utils.mean(percentages),
+            median: utils.median(percentages),
+          };
+        })
+      );
     });
   endStream.write(endCsv);
   endStream.end();
 }
 
-const data = fs.readdirSync('./data')
+const data = fs.readdirSync(__dirname + "/" + path + "/data");
 console.log(`Analyzing ${data.length} simulations`);
 data.forEach((subdir, i) => {
   analyze(subdir, i === data.length - 1);
 });
-
