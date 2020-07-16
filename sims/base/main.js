@@ -13,9 +13,10 @@ const {
 
 const START = parseInt(argv.start) || 0;
 const RUNS = parseInt(argv.runs) || 1;
-const THRESHOLD = parseInt(argv.threshold) || 0.15;
+const THRESHOLD = parseFloat(argv.threshold) || 0.15;
 const VOTERS = parseInt(argv.voters) || 500;
 const CANDIDATES = parseInt(argv.candidates) || 8;
+CONST REWIRE = parseFloat(argv.rewire) || 0.03;
 
 const xy = () => {
   const x = utils.random(-1, 1, true);
@@ -121,6 +122,7 @@ function setup() {
   // connect voters
   voters.forEach((voter) => {
     const n = utils.sample([3, 3, 4, 5, 6]);
+    if (network.neighbors(voter) >= n) return;
     let d = 0;
     let neighbors;
     do {
@@ -134,7 +136,7 @@ function setup() {
   voters.forEach((voter) => {
     const connections = network.neighbors(voter);
     connections.forEach((connect) => {
-      if (utils.uniform() < 0.03) {
+      if (utils.uniform() < REWIRE) {
         network.disconnect(voter, connect);
         network.connect(voter, utils.sample(voters));
       }
