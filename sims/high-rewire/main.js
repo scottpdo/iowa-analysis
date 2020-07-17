@@ -1,5 +1,4 @@
 const fs = require("fs");
-const rimraf = require("rimraf");
 const { argv } = require("yargs");
 const {
   Agent,
@@ -16,7 +15,7 @@ const RUNS = parseInt(argv.runs) || 1;
 const THRESHOLD = parseFloat(argv.threshold) || 0.15;
 const VOTERS = parseInt(argv.voters) || 500;
 const CANDIDATES = parseInt(argv.candidates) || 8;
-const REWIRE = parseFloat(argv.rewire) || 0.03;
+const REWIRE = parseFloat(argv.rewire) || 0.25;
 
 const xy = () => {
   const x = utils.random(-1, 1, true);
@@ -68,6 +67,8 @@ function setup() {
   network = new Network();
   environment.use(network);
 
+  // console.log('  Created environment and network.');
+
   table = new TableRenderer(environment, {
     filter: (a) => a.get("type") === "candidate",
     type: "csv",
@@ -80,6 +81,8 @@ function setup() {
     "votePercentage",
     "distanceToMeanVoter",
   ];
+  
+  // console.log('  Created TableRenderer');
 
   for (let i = 0; i < VOTERS; i++) {
     const { x, y } = xy();
@@ -94,8 +97,10 @@ function setup() {
     environment.addAgent(voter);
     network.addAgent(voter);
   }
+  // console.log('  Added voters to environment and network');
   tree = new KDTree(getVoters(), 2);
   environment.use(tree);
+  // console.log('  Set up KDTree');
 
   const voters = getVoters();
   const meanVoter = new Vector(0, 0);
@@ -103,6 +108,7 @@ function setup() {
     meanVoter.add(new Vector(voter.x, voter.y));
   });
   meanVoter.multiplyScalar(1 / VOTERS.length);
+  // console.log('  Located mean voter');
 
   for (let i = 0; i < CANDIDATES; i++) {
     const { x, y } = xy();
@@ -119,19 +125,21 @@ function setup() {
     environment.addAgent(candidate);
     network.addAgent(candidate);
   }
+  // console.log('  Added candidates to environment');
   // connect voters
   voters.forEach((voter) => {
     const n = utils.sample([3, 3, 4, 5, 6]);
-    if (network.neighbors(voter) >= n) return;
-    let d = 0;
-    let neighbors;
-    do {
-      neighbors = tree.agentsWithinDistance(voter, (d += 0.01));
-    } while (neighbors.length < n);
+    if (network.neighbors(voter).length >= n) return;
+    let d = 0.1;
+    let neighbors = tree.agentsWithinDistance(voter, d);
+    while (neighbors.length < n) {
+      neighbors = tree.agentsWithinDistance(voter, (d += 0.05));
+    }
     neighbors.forEach((neighbor) => {
       network.connect(voter, neighbor);
     });
   });
+  // console.log('  Connected voters');
   // randomly rewire
   voters.forEach((voter) => {
     const connections = network.neighbors(voter);
@@ -142,18 +150,10 @@ function setup() {
       }
     });
   });
+  // console.log('  Randomly rewired voters');
 }
 
-function run(i) {
-  environment.tick({ randomizeOrder: true });
-
-  const seedStr = utils.zfill(i.toString(), 4);
-  const dataPath = `${__dirname}/data/${seedStr}`;
-  const filePath =
-    dataPath + "/" + utils.zfill(environment.time.toString(), 3) + ".csv";
-  if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
-  fs.writeFileSync(filePath, table.output());
-
+function checkForStabilization(i) {
   const candidates = environment.memo(getCandidates);
   const voters = environment.memo(getVoters);
 
@@ -162,10 +162,10 @@ function run(i) {
     .every((v) => v === 0 || v / VOTERS > THRESHOLD);
   if (done) {
     console.log(`Run ${i} stabilized at time ${environment.time}`);
-    return;
+    return i < START + RUNS - 1 ? init(i + 1) : null;
   } else if (environment.time === 100) {
     console.log(`Run ${i} has not yet stabilized at ${environment.time}`);
-    return;
+    return i < START + RUNS - 1 ? init(i + 1) : null;
   }
 
   candidates.forEach((c) => {
@@ -180,13 +180,30 @@ function run(i) {
   run(i);
 }
 
-// make data directory if it does not exist
-if (!fs.existsSync(__dirname + "/data")) {
-  fs.mkdirSync(__dirname + "/data");
+function run(i) {
+  // console.log(`Run ${i}, tick ${environment.time}`);
+  environment.tick({ randomizeOrder: true });
+
+  const seedStr = utils.zfill(i.toString(), 4);
+  const dataPath = `${__dirname}/data/${seedStr}`;
+  const filePath =
+    dataPath + "/" + utils.zfill(environment.time.toString(), 3) + ".csv";
+  if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
+  fs.writeFile(filePath, table.output(), () => checkForStabilization(i));
 }
 
-for (let i = START; i < START + RUNS; i++) {
+// make data directory if it does not exist
+// if (!fs.existsSync(__dirname + "/data")) {
+//  fs.mkdirSync(__dirname + "/data");
+// }
+
+function init(i) {  
+  console.log(`Initializing run ${i}`);
   utils.seed(i);
+  console.log(`Finished seeding run ${i}`);
   setup();
+  console.log(`Finished setting up/resetting`);
   run(i);
 }
+
+init(START);
