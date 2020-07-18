@@ -64,8 +64,8 @@ function analyze(subdirName, finished) {
   );
   let roundHighest = 0;
   let roundSecondHighest = 0;
-  let roundFirstPlaceDistance = 0;
-  let roundSecondPlaceDistance = 0;
+  let roundFirstPlaceDistance = -1;
+  let roundSecondPlaceDistance = -1;
   const endStream = parse({
     headers: true,
   })
@@ -95,8 +95,10 @@ function analyze(subdirName, finished) {
     .on("end", () => {
       firstPlacePercentages.push(roundHighest);
       secondPlacePercentages.push(roundSecondHighest);
-      firstPlaceDistances.push(roundFirstPlaceDistance);
-      secondPlaceDistances.push(roundSecondPlaceDistance);
+      if (roundFirstPlaceDistance >= 0)
+        firstPlaceDistances.push(roundFirstPlaceDistance);
+      if (roundSecondPlaceDistance >= 0)
+        secondPlaceDistances.push(roundSecondPlaceDistance);
       if (!finished) return;
       console.log(`-- Mean # of victors: ${utils.mean(victors)}`);
       console.log(
