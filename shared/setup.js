@@ -14,14 +14,7 @@ module.exports = function setup({ VOTERS, CANDIDATES, REWIRE }) {
     filter: (a) => a.get("type") === "candidate",
     type: "csv",
   });
-  table.columns = [
-    "i",
-    "votes",
-    "x",
-    "y",
-    "votePercentage",
-    "distanceToMeanVoter",
-  ];
+  table.columns = ["i", "votes", "x", "y", "votePercentage"];
 
   addVoters(environment, VOTERS);
   tree = new KDTree(getVoters(environment), 2);

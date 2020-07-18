@@ -15,7 +15,10 @@ if (!path) {
 const startingPercentages = {};
 const endingPercentages = {};
 
-const distances = [];
+const rounds = [];
+const victors = [];
+const firstPlacePercentages = [];
+const secondPlacePercentages = [];
 
 function analyze(subdirName, finished) {
   const startCsv = fs.readFileSync(
@@ -34,67 +37,90 @@ function analyze(subdirName, finished) {
   startStream.end();
 
   let endCsv;
-  let i = 2;
+  let round = 2;
   while (
     fs.existsSync(
       `${__dirname}/${path}/data/${subdirName}/${utils.zfill(
-        i.toString(),
+        round.toString(),
         3
       )}.csv`
     )
   ) {
-    i++;
+    round++;
   }
-  i--;
+  round--;
+  rounds.push(round);
+  if (finished) {
+    console.log(`-- Mean # of rounds ${utils.mean(rounds)}`);
+  }
   endCsv = fs.readFileSync(
     `${__dirname}/${path}/data/${subdirName}/${utils.zfill(
-      i.toString(),
+      round.toString(),
       3
     )}.csv`,
     "utf-8"
   );
-  let firstRow = true;
+  let roundHighest = 0;
+  let roundSecondHighest = 0;
   const endStream = parse({
     headers: true,
   })
     .on("error", (error) => console.error(error))
-    .on("data", ({ i, votes, votePercentage, distanceToMeanVoter }) => {
+    .on("data", ({ i, x, y, votePercentage }) => {
       if (!endingPercentages[i]) endingPercentages[i] = [];
       endingPercentages[i].push(+votePercentage);
 
-      distances.push({
-        distanceToMeanVoter: +distanceToMeanVoter,
-        votePercentage: +votePercentage,
-      });
+      if (i === "0") {
+        victors.push(0);
+      }
+      if (+votePercentage > 0.15) {
+        victors[victors.length - 1]++;
+      }
+      if (+votePercentage > roundHighest) {
+        // update 2nd place
+        roundSecondHighest = roundHighest;
+        roundHighest = +votePercentage;
+      } else if (+votePercentage > roundSecondHighest) {
+        roundSecondHighest = +votePercentage;
+      }
     })
     .on("end", () => {
+      firstPlacePercentages.push(roundHighest);
+      secondPlacePercentages.push(roundSecondHighest);
       if (!finished) return;
-      console.table(
-        [
-          [0, 0.05],
-          [0.05, 0.1],
-          [0.1, 0.2],
-          [0.2, 0.3],
-          [0.3, 0.4],
-          [0.5, 0.6],
-          [0.6, 0.7],
-          [0.7, 0.8],
-          [0.8, 0.9],
-          [0.9, 1],
-        ].map(([min, max]) => {
-          const percentages = distances
-            .filter(({ distanceToMeanVoter }) => {
-              return distanceToMeanVoter > min && distanceToMeanVoter < max;
-            })
-            .map(({ votePercentage }) => votePercentage);
-
-          return {
-            range: `${min} - ${max}`,
-            mean: utils.mean(percentages),
-            median: utils.median(percentages),
-          };
-        })
+      console.log(`-- Mean # of victors: ${utils.mean(victors)}`);
+      console.log(
+        `-- Mean % of 1st place: ${utils.mean(firstPlacePercentages)}`
       );
+      console.log(
+        `-- Mean % of 2nd place: ${utils.mean(secondPlacePercentages)}`
+      );
+      // console.table(
+      //   [
+      //     [0, 0.05],
+      //     [0.05, 0.1],
+      //     [0.1, 0.2],
+      //     [0.2, 0.3],
+      //     [0.3, 0.4],
+      //     [0.5, 0.6],
+      //     [0.6, 0.7],
+      //     [0.7, 0.8],
+      //     [0.8, 0.9],
+      //     [0.9, 1],
+      //   ].map(([min, max]) => {
+      //     const percentages = distances
+      //       .filter(({ distanceToMeanVoter }) => {
+      //         return distanceToMeanVoter > min && distanceToMeanVoter < max;
+      //       })
+      //       .map(({ votePercentage }) => votePercentage);
+
+      //     return {
+      //       range: `${min} - ${max}`,
+      //       mean: utils.mean(percentages),
+      //       median: utils.median(percentages),
+      //     };
+      //   })
+      // );
     });
   endStream.write(endCsv);
   endStream.end();
