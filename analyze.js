@@ -21,6 +21,13 @@ const firstPlacePercentages = [];
 const secondPlacePercentages = [];
 const firstPlaceDistances = [];
 const secondPlaceDistances = [];
+const underdogs = {};
+
+const data = fs.readdirSync(__dirname + "/" + path + "/data");
+console.log(`Analyzing ${data.length} simulations`);
+data.forEach((subdir, i) => {
+  analyze(subdir, i === data.length - 1);
+});
 
 function analyze(subdirName, finished) {
   const startCsv = fs.readFileSync(
@@ -31,9 +38,11 @@ function analyze(subdirName, finished) {
     headers: true,
   })
     .on("error", (error) => console.error(error))
-    .on("data", ({ i, votes, votePercentage }) => {
-      if (!startingPercentages[i]) startingPercentages[i] = [];
-      startingPercentages[i].push(+votePercentage);
+    .on("data", ({ i, votePercentage }) => {
+      if (!underdogs[subdirName]) underdogs[subdirName] = {};
+      if (+votePercentage < 0.15) {
+        underdogs[subdirName][i] = +votePercentage;
+      }
     });
   startStream.write(startCsv);
   startStream.end();
@@ -95,6 +104,15 @@ function analyze(subdirName, finished) {
         roundSecondHighest = +votePercentage;
         roundSecondPlaceDistance = utils.distance({ x, y }, { x: 0, y: 0 });
       }
+
+      if (i in underdogs[subdirName]) {
+        if (+votePercentage < 0.15) {
+          delete underdogs[subdirName][i];
+        } else {
+          const start = underdogs[subdirName][i];
+          underdogs[subdirName][i] = [start, +votePercentage];
+        }
+      }
     })
     .on("end", () => {
       firstPlacePercentages.push(roundHighest);
@@ -117,13 +135,17 @@ function analyze(subdirName, finished) {
       console.log(
         `-- Mean of 2nd place distances: ${utils.mean(secondPlaceDistances)}`
       );
+      Object.keys(underdogs).forEach((round) => {
+        if (Object.keys(underdogs[round]).length === 0) {
+          delete underdogs[round];
+        }
+      });
+      console.log(
+        `-- ${
+          Object.keys(underdogs).length / data.length
+        } % of rounds have underdogs`
+      );
     });
   endStream.write(endCsv);
   endStream.end();
 }
-
-const data = fs.readdirSync(__dirname + "/" + path + "/data");
-console.log(`Analyzing ${data.length} simulations`);
-data.forEach((subdir, i) => {
-  analyze(subdir, i === data.length - 1);
-});
