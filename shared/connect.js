@@ -1,12 +1,13 @@
 const { utils } = require("flocc");
 
-module.exports = function (environment) {
+module.exports = function (CONFIG) {
+  const { environment, CONNECTIONS } = CONFIG;
   const { network, kdtree } = environment.helpers;
   const voters = environment
     .getAgents()
     .filter((a) => a.get("type") === "voter");
   voters.forEach((voter) => {
-    const n = utils.sample([3, 3, 4, 5, 6]);
+    const n = utils.sample(CONNECTIONS);
     if (network.neighbors(voter) >= n) return;
     let d = 0;
     let neighbors;

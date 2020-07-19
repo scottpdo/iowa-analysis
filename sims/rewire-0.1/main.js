@@ -11,6 +11,7 @@ const CONFIG = {
   VOTERS: 500,
   CANDIDATES: 8,
   REWIRE: 0.1,
+  CONNECTIONS: [3, 3, 4, 5, 6],
   DIR: __dirname,
 };
 

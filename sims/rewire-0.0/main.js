@@ -11,10 +11,9 @@ const CONFIG = {
   VOTERS: 500,
   CANDIDATES: 8,
   REWIRE: 0,
+  CONNECTIONS: [3, 3, 4, 5, 6],
   DIR: __dirname,
 };
-
-let environment;
 
 // make data directory if it does not exist
 if (!fs.existsSync(__dirname + "/data")) {
@@ -24,8 +23,8 @@ if (!fs.existsSync(__dirname + "/data")) {
 function init(i) {
   console.log(`Initializing run ${i}`);
   utils.seed(i);
-  environment = setup(CONFIG);
-  run(CONFIG, i, environment, init);
+  setup(CONFIG);
+  run(CONFIG, i, init);
 }
 
 init(CONFIG.START);

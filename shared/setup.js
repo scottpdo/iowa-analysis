@@ -5,26 +5,25 @@ const addCandidates = require("./addCandidates");
 const connect = require("./connect");
 const rewire = require("./rewire");
 
-module.exports = function setup({ VOTERS, CANDIDATES, REWIRE }) {
-  environment = new Environment();
-  network = new Network();
-  environment.use(network);
+module.exports = function setup(CONFIG) {
+  const { VOTERS, CANDIDATES, REWIRE } = CONFIG;
+  CONFIG.environment = new Environment();
+  const network = new Network();
+  CONFIG.environment.use(network);
 
-  table = new TableRenderer(environment, {
+  table = new TableRenderer(CONFIG.environment, {
     filter: (a) => a.get("type") === "candidate",
     type: "csv",
   });
   table.columns = ["i", "votes", "x", "y", "votePercentage"];
 
-  addVoters(environment, VOTERS);
-  tree = new KDTree(getVoters(environment), 2);
-  environment.use(tree);
+  addVoters(CONFIG);
+  const tree = new KDTree(getVoters(CONFIG.environment), 2);
+  CONFIG.environment.use(tree);
 
-  addCandidates(environment, CANDIDATES);
+  addCandidates(CONFIG);
   // connect voters
-  connect(environment);
+  connect(CONFIG);
   // randomly rewire
-  rewire(environment, REWIRE);
-
-  return environment;
+  rewire(CONFIG);
 };

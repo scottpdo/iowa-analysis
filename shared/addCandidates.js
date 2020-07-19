@@ -1,7 +1,8 @@
 const { Agent } = require("flocc");
 const xy = require("./distribution");
 
-module.exports = function addCandidates(environment, CANDIDATES) {
+module.exports = function addCandidates(CONFIG) {
+  const { environment, CANDIDATES } = CONFIG;
   const voters = environment
     .getAgents()
     .filter((a) => a.get("type") === "voter");

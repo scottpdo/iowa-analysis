@@ -2,12 +2,8 @@ const fs = require("fs");
 const { utils } = require("flocc");
 const checkForStabilization = require("./checkForStabilization");
 
-module.exports = function run(
-  { DIR, THRESHOLD, START, RUNS },
-  i,
-  environment,
-  init
-) {
+module.exports = function run(CONFIG, i, init) {
+  const { DIR, START, RUNS, environment } = CONFIG;
   environment.tick({ randomizeOrder: true });
 
   const seedStr = utils.zfill(i.toString(), 4);
@@ -18,9 +14,8 @@ module.exports = function run(
   fs.writeFile(filePath, table.output(), () => {
     checkForStabilization(
       i,
-      environment,
-      THRESHOLD,
-      () => run({ DIR, THRESHOLD, START, RUNS }, i, environment, init),
+      CONFIG,
+      () => run(CONFIG, i, init),
       i < START + RUNS - 1 ? init : null
     );
   });

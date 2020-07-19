@@ -1,13 +1,8 @@
 const getVoters = require("./getVoters");
 const getCandidates = require("./getCandidates");
 
-module.exports = function checkForStabilization(
-  i,
-  environment,
-  THRESHOLD,
-  run,
-  init
-) {
+module.exports = function checkForStabilization(i, CONFIG, run, init) {
+  const { environment, THRESHOLD } = CONFIG;
   const candidates = getCandidates(environment);
   const voters = getVoters(environment);
 

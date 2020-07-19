@@ -1,7 +1,8 @@
 const { utils } = require("flocc");
 const getVoters = require("./getVoters");
 
-module.exports = function (environment, REWIRE) {
+module.exports = function (CONFIG) {
+  const { environment, REWIRE } = CONFIG;
   const { network } = environment.helpers;
   const voters = getVoters(environment);
   voters.forEach((voter) => {
