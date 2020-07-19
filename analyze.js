@@ -53,7 +53,7 @@ function analyze(subdirName, finished) {
   round--;
   rounds.push(round);
   if (finished) {
-    console.log(`-- Mean # of rounds ${utils.mean(rounds)}`);
+    console.log(`-- Mean # of rounds ${utils.mean(rounds)} (Median: ${utils.median(rounds)`);
   }
   endCsv = fs.readFileSync(
     `${__dirname}/${path}/data/${subdirName}/${utils.zfill(
@@ -100,7 +100,7 @@ function analyze(subdirName, finished) {
       if (roundSecondPlaceDistance >= 0)
         secondPlaceDistances.push(roundSecondPlaceDistance);
       if (!finished) return;
-      console.log(`-- Mean # of victors: ${utils.mean(victors)}`);
+      console.log(`-- Mean # of victors: ${utils.mean(victors)}})`);
       console.log(
         `-- Mean % of 1st place: ${utils.mean(firstPlacePercentages)}`
       );
