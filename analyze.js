@@ -53,7 +53,11 @@ function analyze(subdirName, finished) {
   round--;
   rounds.push(round);
   if (finished) {
-    console.log(`-- Mean # of rounds ${utils.mean(rounds)} (Median: ${utils.median(rounds)`);
+    console.log(
+      `-- Mean # of rounds ${utils.mean(rounds)} (Median: ${utils.median(
+        rounds
+      )}`
+    );
   }
   endCsv = fs.readFileSync(
     `${__dirname}/${path}/data/${subdirName}/${utils.zfill(
