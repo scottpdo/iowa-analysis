@@ -15,8 +15,6 @@ const CONFIG = {
   DIR: __dirname,
 };
 
-let environment;
-
 // make data directory if it does not exist
 if (!fs.existsSync(__dirname + "/data")) {
   fs.mkdirSync(__dirname + "/data");
@@ -26,7 +24,7 @@ function init(i) {
   console.log(`Initializing run ${i}`);
   utils.seed(i);
   environment = setup(CONFIG);
-  run(CONFIG, i, environment, init);
+  run(CONFIG, i, init);
 }
 
 init(CONFIG.START);

@@ -10,8 +10,8 @@ const CONFIG = {
   THRESHOLD: 0.15,
   VOTERS: 500,
   CANDIDATES: 8,
-  REWIRE: 0.25,
-  CONNECTIONS: [3, 3, 4, 5, 6],
+  REWIRE: 0.03,
+  CONNECTIONS: [5, 6, 7, 8, 9, 10],
   DIR: __dirname,
 };
 
