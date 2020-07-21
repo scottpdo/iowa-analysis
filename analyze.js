@@ -124,10 +124,10 @@ function analyze(subdirName, finished) {
       if (!finished) return;
       console.log(`-- Mean # of victors: ${utils.mean(victors)}`);
       console.log(
-        `-- Mean % of 1st place: ${utils.mean(firstPlacePercentages)}`
+        `-- Mean % of 1st place: ${100 * utils.mean(firstPlacePercentages)}%`
       );
       console.log(
-        `-- Mean % of 2nd place: ${utils.mean(secondPlacePercentages)}`
+        `-- Mean % of 2nd place: ${100 * utils.mean(secondPlacePercentages)}%`
       );
       console.log(
         `-- Mean of 1st place distances: ${utils.mean(firstPlaceDistances)}`
@@ -142,7 +142,7 @@ function analyze(subdirName, finished) {
       });
       console.log(
         `-- ${
-          Object.keys(underdogs).length / data.length
+          (100 * Object.keys(underdogs).length) / data.length
         } % of rounds have underdogs`
       );
     });
