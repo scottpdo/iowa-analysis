@@ -145,6 +145,7 @@ function analyze(subdirName, finished) {
           (100 * Object.keys(underdogs).length) / data.length
         } % of rounds have underdogs`
       );
+      // console.log(`   Underdogs: ${Object.keys(underdogs).join(", ")}`);
     });
   endStream.write(endCsv);
   endStream.end();

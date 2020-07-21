@@ -1,12 +1,10 @@
-const { Environment, KDTree, Network, TableRenderer } = require("flocc");
+const { Environment, Network, TableRenderer } = require("flocc");
 const addVoters = require("./addVoters");
-const getVoters = require("./getVoters");
 const addCandidates = require("./addCandidates");
 const connect = require("./connect");
 const rewire = require("./rewire");
 
 module.exports = function setup(CONFIG) {
-  const { VOTERS, CANDIDATES, REWIRE } = CONFIG;
   CONFIG.environment = new Environment();
   const network = new Network();
   CONFIG.environment.use(network);
@@ -18,8 +16,6 @@ module.exports = function setup(CONFIG) {
   table.columns = ["i", "votes", "x", "y", "votePercentage"];
 
   addVoters(CONFIG);
-  const tree = new KDTree(getVoters(CONFIG.environment), 2);
-  CONFIG.environment.use(tree);
 
   addCandidates(CONFIG);
   // connect voters
