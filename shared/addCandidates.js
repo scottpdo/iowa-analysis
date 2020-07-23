@@ -1,7 +1,7 @@
 const { Agent } = require("flocc");
 const xy = require("./distribution");
 
-module.exports = function addCandidates(CONFIG) {
+module.exports = function addCandidates(CONFIG, colors = []) {
   const { environment, CANDIDATES } = CONFIG;
   const voters = environment
     .getAgents()
@@ -13,6 +13,8 @@ module.exports = function addCandidates(CONFIG) {
       x,
       y,
       i,
+      color:
+        colors.length > 0 && colors.length === CANDIDATES ? colors[i] : null,
       size: 6,
       type: "candidate",
       votes: 0,

@@ -9,11 +9,11 @@ module.exports = function setup(CONFIG) {
   const network = new Network();
   CONFIG.environment.use(network);
 
-  table = new TableRenderer(CONFIG.environment, {
+  CONFIG.table = new TableRenderer(CONFIG.environment, {
     filter: (a) => a.get("type") === "candidate",
     type: "csv",
   });
-  table.columns = ["i", "votes", "x", "y", "votePercentage"];
+  CONFIG.table.columns = ["i", "votes", "x", "y", "votePercentage"];
 
   addVoters(CONFIG);
 

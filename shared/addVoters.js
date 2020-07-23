@@ -8,6 +8,7 @@ module.exports = function addVoters(CONFIG) {
     const { x, y } = xy();
     const voter = new Agent({
       candidate: null,
+      color: "gray",
       x,
       y,
       size: 2,

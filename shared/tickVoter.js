@@ -28,5 +28,5 @@ module.exports = function tickVoter(agent) {
   }
 
   candidate.increment("votes");
-  return { candidate };
+  return { candidate, color: candidate.get("color") };
 };
