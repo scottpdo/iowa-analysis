@@ -26,7 +26,7 @@ function init(i) {
   console.log(`Initializing run ${i}`);
   utils.seed(i);
   environment = setup(CONFIG);
-  run(CONFIG, i, environment, init);
+  run(CONFIG, i, init);
 }
 
 init(CONFIG.START);
