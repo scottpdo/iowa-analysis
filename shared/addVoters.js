@@ -13,6 +13,7 @@ module.exports = function addVoters(CONFIG) {
       y,
       size: 2,
       type: "voter",
+      visibility: CONFIG.VISIBILITY,
     });
     voter.addRule(tickVoter);
     environment.addAgent(voter);

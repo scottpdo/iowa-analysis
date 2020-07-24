@@ -11,13 +11,20 @@ module.exports = function tickVoter(agent) {
 
   // voting for the first time
   if (!candidate) {
-    candidate = utils.sample(
-      candidates,
-      candidates.map((c) => {
-        const id = Math.max(1 - utils.distance(c, agent), 0.0001);
-        return id ** 2;
-      })
-    );
+    if (agent.get("visibility") === "perfect") {
+      const sortedCandidates = candidates.sort(
+        (a, b) => utils.distance(a, agent) - utils.distance(b, agent)
+      );
+      candidate = sortedCandidates[0];
+    } else {
+      candidate = utils.sample(
+        candidates,
+        candidates.map((c) => {
+          const id = Math.max(1 - utils.distance(c, agent), 0.0001);
+          return id ** 2;
+        })
+      );
+    }
   } else if (candidate && candidate.get("valid") === false) {
     const { network } = environment.helpers;
     const neighborCandidates = network

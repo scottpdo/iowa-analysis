@@ -1,5 +1,4 @@
 import {
-  Agent,
   Environment,
   CanvasRenderer,
   Network,
@@ -22,6 +21,7 @@ const CONFIG = {
   CANDIDATES: 8,
   REWIRE: 0.03,
   CONNECTIONS: [3, 3, 4, 5, 6],
+  VISIBILITY: "perfect",
 };
 
 function run(CONFIG, i, init) {
