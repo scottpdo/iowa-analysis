@@ -1,0 +1,7 @@
+{
+  "THRESHOLD": 0.15,
+  "VOTERS": 500,
+  "CANDIDATES": 8,
+  "REWIRE": 0.1,
+  "CONNECTIONS": [3, 3, 4, 5, 6]
+}
