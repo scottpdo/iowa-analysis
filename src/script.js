@@ -21,7 +21,7 @@ const CONFIG = {
   CANDIDATES: 8,
   REWIRE: 0.03,
   CONNECTIONS: [3, 3, 4, 5, 6],
-  VISIBILITY: "perfect",
+  WEIGHT: "mult_inverse",
 };
 
 function run(CONFIG, i, init) {

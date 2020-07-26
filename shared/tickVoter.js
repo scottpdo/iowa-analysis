@@ -20,6 +20,13 @@ module.exports = function tickVoter(agent) {
       candidate = utils.sample(
         candidates,
         candidates.map((c) => {
+          // if using multiplicative inverse weights, take (1 / distance) squared
+          // as weights (avoid division by 0)
+          if (agent.get("weight") === "mult_inverse") {
+            const d = Math.max(utils.distance(c, agent), 0.0001);
+            return (1 / d) ** 2;
+          }
+          // default to using additive inverse of distance squared
           const id = Math.max(1 - utils.distance(c, agent), 0.0001);
           return id ** 2;
         })

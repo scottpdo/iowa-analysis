@@ -13,6 +13,7 @@ module.exports = function addVoters(CONFIG) {
       y,
       size: 2,
       type: "voter",
+      weight: CONFIG.WEIGHT,
       visibility: CONFIG.VISIBILITY,
     });
     voter.addRule(tickVoter);
