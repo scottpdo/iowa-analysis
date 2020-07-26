@@ -21,6 +21,7 @@ const firstPlacePercentages = [];
 const secondPlacePercentages = [];
 const firstPlaceDistances = [];
 const secondPlaceDistances = [];
+const allDistances = [];
 const underdogs = {};
 
 const data = fs.readdirSync(__dirname + "/" + path + "/data");
@@ -113,6 +114,8 @@ function analyze(subdirName, finished) {
           underdogs[subdirName][i] = [start, +votePercentage];
         }
       }
+
+      allDistances.push(utils.distance({ x, y }, { x: 0, y: 0 }));
     })
     .on("end", () => {
       firstPlacePercentages.push(roundHighest);
@@ -134,6 +137,9 @@ function analyze(subdirName, finished) {
       );
       console.log(
         `-- Mean of 2nd place distances: ${utils.mean(secondPlaceDistances)}`
+      );
+      console.log(
+	`-- Mean overall distance: ${utils.mean(allDistances)}`
       );
       Object.keys(underdogs).forEach((round) => {
         if (Object.keys(underdogs[round]).length === 0) {
